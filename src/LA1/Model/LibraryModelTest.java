@@ -25,14 +25,14 @@ class LibraryModelTest {
 		Song song1 = new Song("NOKIA", "Drake", "New Drake");
         Song song2 = new Song("Distance", "AP", "New AP");
         
-        library.songs.add(song1);
-        library.songs.add(song2);
+        library.addSong(song1,true);
+        library.addSong(song2,true);
         
         Album album1 = new Album("New Drake", "Drake", "Hip Hop", 2025);
         Album album2 = new Album("New AP", "AP", "Pop", 2020);
         
-        library.albums.add(album1);
-        library.albums.add(album2);
+        library.addAlbum(album1,true);
+        library.addAlbum(album2,true);
         
         // test search methods
         
@@ -103,13 +103,13 @@ class LibraryModelTest {
         
         boolean marked = library.markFavorite("NOKIA", "Drake", true);
         assertTrue(marked);
-        assertTrue(song1.isFavorite());
+        assertTrue(library.inFavourites(song1));
         ArrayList<Song> allFavourites = library.getFavorites();
         assertEquals(1, allFavourites.size());
         
         boolean unMarked = library.markFavorite("NOKIA", "Drake", false);
         assertTrue(unMarked);
-        assertFalse(song1.isFavorite());
+        assertFalse(library.inFavourites(song1));
         
         boolean mark2 = library.markFavorite("Flight", "Drake", true);
         assertFalse(mark2);
@@ -119,19 +119,42 @@ class LibraryModelTest {
         
         boolean rated = library.rateSong("NOKIA","Drake", 2);
         assertTrue(rated);
-        assertEquals(2, song1.getRating());
+        assertEquals(2, library.getRating(song1));
         
         boolean rated2 = library.rateSong("Distance", "AP", 5);
         assertTrue(rated2);
-        assertEquals(5, song2.getRating());
-        assertTrue(song2.isFavorite());
+        assertEquals(5, library.getRating(song2));
+        assertTrue(library.inFavourites(song2));
         
         boolean rated3 = library.rateSong("FLY","Drake", 9);
         assertFalse(rated3);
  
         // test add song/album
+        
+        Song testRating = new Song("meow", "meow", "meow");
+        library.addSong(testRating, true);
+        library.setRating(testRating, 5);
+		assertTrue(library.inFavourites(testRating));
+		assertEquals(5, library.getRating(testRating));
+		
+		Song testRating2 = new Song("Thick of It", "KSI", "Everybody knows");
+        library.addSong(testRating2, true);
+		library.setRating(testRating2, 3);
+		library.addFavourite(testRating2);
+		assertTrue(library.inFavourites(testRating2));
+		
+		
+		library.markFavorite("Thick of It", "KSI", false);
+		assertFalse(library.inFavourites(testRating2));
  
-      
+		Song testRating3 = new Song("My Way","Frank Sinatraa","Album");
+        library.addSong(testRating3, true);
+		library.setRating(testRating3, 7);
+		assertFalse(library.inFavourites(testRating3));
+		
+		Song testRating4 = new Song("Beat It","Michael Jackson","Thriller");
+		library.setRating(testRating4, 5);
+		assertFalse(library.inFavourites(testRating3));
          
         
      
