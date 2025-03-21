@@ -1,0 +1,4 @@
+# Ignore system files .DS_Store .Trash/ .bash_history .bash_profile # Ignore IDE files .vscode/ .idea/ .eclipse/ # Ignore global directories 
+.cache/ .config/ .docker/ # Ignore personal directories Documents/ Downloads/
+
+x
