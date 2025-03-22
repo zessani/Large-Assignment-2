@@ -139,7 +139,7 @@ public class MusicStore {
 							break;
 						}
 						else{
-							Song newSong = new Song(songsInfo,artist,album);
+							Song newSong = new Song(songsInfo,artist,album,genre);
 							newAlbum.addSong(songsInfo);
 							this.addSong(newSong);
 						}
@@ -158,7 +158,6 @@ public class MusicStore {
 		ArrayList<Album> sortedAlbum = new ArrayList<Album>();
 		String folderPath = "src/LA1/Resources";
 		File albumFile = new File(folderPath, "albums.txt");
-		int i = 0;
 		String title,artist;
 		String[] albumInfoSplit = new String[2];
 		String albumInfo = "";

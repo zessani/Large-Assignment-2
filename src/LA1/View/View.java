@@ -22,7 +22,7 @@ public class View {
     
     public View(MusicStore store) {
         this.store = store;
-        this.scanner = new Scanner(System.in);
+        this.scanner = new Scanner(System.in);  
         
         try {
             this.userManager = new users(store);

@@ -12,11 +12,10 @@ class PlaylistTest {
 		
 		assertEquals("Test Playlist", playlist.getName());
 		
-		Song song1 = new Song("Blockbuster", "Manu", "Album");
+		Song song1 = new Song("Blockbuster", "Manu", "Album", "Genre");
 		playlist.addSongs(song1);
 		
 		assertEquals(1, playlist.getPlaylistSize()); 
 	}
 
 }
- 

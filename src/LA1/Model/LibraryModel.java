@@ -21,6 +21,8 @@ public class LibraryModel {
 	private AutoPlaylist recentPlaylist;
 	private AutoPlaylist frequentPlayedPlaylist;
 	private AutoPlaylist favourites;
+	private AutoPlaylist topRated;
+	private ArrayList<AutoPlaylist> genre;
 	private Queue<Song> recentSongs;
 	private MusicStore store; 
 	
@@ -31,7 +33,9 @@ public class LibraryModel {
 		albums = new ArrayList<>();  
 		playlists = new ArrayList<>();
 		recentSongs = new LinkedList<>();
+		genre = new ArrayList<AutoPlaylist>();
 		recentPlaylist = new AutoPlaylist("Recently Played");
+		topRated = new AutoPlaylist("Top Rated");
 		frequentPlayedPlaylist = new AutoPlaylist("Frequently Played");
 		favourites = new AutoPlaylist("Favourites");
 	}    
@@ -41,7 +45,7 @@ public class LibraryModel {
 		Enumeration<Song> songList = songs.keys();
 		while (songList.hasMoreElements()) {
 			Song song = songList.nextElement();
-			if (song.getSongTitle().equals(title)) {
+			if (song.getSongTitle().equalsIgnoreCase(title)) {
 				result.add(song); 
 			}
 		}
@@ -53,7 +57,18 @@ public class LibraryModel {
 		Enumeration<Song> songList = songs.keys();
 		while (songList.hasMoreElements()){
 			Song song = songList.nextElement();
-			if (song.getArtistName().equals(artist)) {
+			if (song.getArtistName().equalsIgnoreCase(artist)) {
+				result.add(song);
+			}
+		}
+		return result;
+	}
+	public ArrayList<Song> searchSongByGenre(String genre){
+		ArrayList<Song> result = new ArrayList<>();
+		Enumeration<Song> songList = songs.keys();
+		while (songList.hasMoreElements()){
+			Song song = songList.nextElement();
+			if (song.getGenre().equalsIgnoreCase(genre)) {
 				result.add(song);
 			}
 		}
@@ -188,9 +203,67 @@ public class LibraryModel {
         return false;
     }  
     
+    // rate a song  (name and artist)
+    public boolean rateSong(String title, String artist, int rating) {
+        Enumeration<Song> songList = songs.keys();
+        while (songList.hasMoreElements()) {
+        	Song song = songList.nextElement();
+            if (song.getSongTitle().equals(title) && song.getArtistName().equals(artist)) {
+                setRating(song,rating);
+                return true;
+            }
+        }
+        return false;
+    }
     
-    // mark a song as “favorite”
-    
+    public void setRating(Song song,int rating) {
+		if (rating >= 1 && rating <= 5) {
+			Enumeration<Song> ratingList = ratings.keys();
+			while (ratingList.hasMoreElements()){
+				Song currentSong = ratingList.nextElement();
+				if (currentSong == song){
+					ratings.remove(currentSong);
+				}
+	        }
+			Enumeration<Song> songList = songs.keys();
+			while (songList.hasMoreElements()) {
+				Song currentSong = songList.nextElement();
+	        	if (currentSong.equals(song)){
+	        			ratings.put(song, rating);
+	        				if (rating == 5) {
+	        					favourites.addSongs(song);
+	        				}		
+	        	}
+	        }
+			updateTopRatedPlaylist();
+		}
+    }
+		
+	public int getRating(Song song) {
+		Enumeration<Song> songList = ratings.keys();
+		while (songList.hasMoreElements()) {
+			Song currentSong = songList.nextElement();
+        	if (currentSong.equals(song)){
+        		return ratings.get(song);
+        	}	
+		}
+		return 0;
+	}
+	
+	public boolean inFavourites(Song song){
+		for (Song songs : favourites.getSongs()){
+			if (song == songs){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void addFavourite(Song song){
+		favourites.addSongs(song);		
+	}
+	
+	// mark a song as â€œfavoriteâ€�
     public boolean markFavorite(String title, String artist, boolean favorite) {
         Enumeration<Song> songList = songs.keys();
         while (songList.hasMoreElements()) {
@@ -208,22 +281,7 @@ public class LibraryModel {
         return false;
     }
     
-    // rate a song  (name and artist)
-    
-    public boolean rateSong(String title, String artist, int rating) {
-        Enumeration<Song> songList = songs.keys();
-        while (songList.hasMoreElements()) {
-        	Song song = songList.nextElement();
-            if (song.getSongTitle().equals(title) && song.getArtistName().equals(artist)) {
-                setRating(song,rating);
-                return true;
-            }
-        }
-        return false;
-    }
-    
     // add a song from the store
-    
     public boolean addSong(String title, String artist) {
         Enumeration<Song> songList = songs.keys();
         while (songList.hasMoreElements()) {
@@ -236,8 +294,10 @@ public class LibraryModel {
         ArrayList<Song> storeSongs = store.searchSongByTitle(title);
         for (Song storeSong : storeSongs) {
             if (storeSong.getArtistName().equals(artist)) {
-                Song newSong = new Song(title, artist, storeSong.getAlbumTitle());
+                Song newSong = storeSong;
                 songs.put(newSong, 0);
+        		partialAlbumAdd(newSong);
+                updateGenrePlaylist();
                 return true;
             }
         }
@@ -247,6 +307,7 @@ public class LibraryModel {
     public boolean addSong(Song toAddSong, boolean force){
     	if (force){
     		songs.put(toAddSong, 0);
+    		partialAlbumAdd(toAddSong);
     		return true;
     	}
     	String title = toAddSong.getSongTitle();
@@ -261,8 +322,10 @@ public class LibraryModel {
         ArrayList<Song> storeSongs = store.searchSongByTitle(title);
         for (Song storeSong : storeSongs) {
             if (storeSong.getArtistName().equals(artist)) {
-                Song newSong = new Song(title, artist, storeSong.getAlbumTitle());
+                Song newSong = new Song(title, artist, storeSong.getAlbumTitle(), storeSong.getGenre());
                 songs.put(newSong, 0);
+        		partialAlbumAdd(newSong);
+                updateGenrePlaylist();
                 return true;
             }
         }
@@ -279,15 +342,16 @@ public class LibraryModel {
         }
         
         ArrayList<Album> storeAlbums = store.searchAlbumByTitle(title);
+        if (storeAlbums == null){
+        	return false;
+        }
         for (Album storeAlbum : storeAlbums) {
             if (storeAlbum.getArtist().equals(artist)) {
-                Album newAlbum = new Album(title, artist, storeAlbum.getGenre(), storeAlbum.getYear());
-                
+                Album newAlbum = storeAlbum;
                 for (Song storeSong : storeAlbum.getSongs()) {
-                    newAlbum.addSong(storeSong.getSongTitle());
-                    songs.put(new Song(storeSong.getSongTitle(), artist, title), 0);
+                    addSong(storeSong,false);
                 }
-                
+                overwritePartialAlbum(newAlbum);
                 albums.add(newAlbum);
                 return true;
             }
@@ -308,43 +372,70 @@ public class LibraryModel {
                 return false;
             }
         }
-        
         ArrayList<Album> storeAlbums = store.searchAlbumByTitle(title);
+        if (storeAlbums == null){
+        	return false;
+        }
         for (Album storeAlbum : storeAlbums) {
             if (storeAlbum.getArtist().equals(artist)) {
-                Album newAlbum = new Album(title, artist, storeAlbum.getGenre(), storeAlbum.getYear());
-                
+                Album newAlbum = storeAlbum;
                 for (Song storeSong : storeAlbum.getSongs()) {
-                    newAlbum.addSong(storeSong.getSongTitle());
-                    songs.put(new Song(storeSong.getSongTitle(), artist, title), 0);
+                    addSong(storeSong,false);
                 }
-                
+                overwritePartialAlbum(newAlbum);
                 albums.add(newAlbum);
                 return true;
             }
-        }  
+        }
         
         return false;
     }
     
-    public void playSong(Song song){
-    	int plays = songs.get(song);
-    	songs.remove(song);
-    	songs.put(song, plays+1);
-    	if (recentSongs.contains(song)){
-    		recentSongs.remove(song);
-    		recentSongs.add(song);
-    	}
-    	else {
-    		if (recentSongs.size() < 10) {
-    			recentSongs.add(song);
-    		}
-    		else {
-    			recentSongs.remove();
-    			recentSongs.add(song);
+    public boolean partialAlbumAdd(Song song){
+    	String artist = song.getArtistName();
+    	String title = song.getAlbumTitle();
+    	for (Album libraryAlbum : albums){
+    		if (libraryAlbum.getTitle().equalsIgnoreCase(title)){
+    			if (libraryAlbum.getSong(title) == null){
+    				libraryAlbum.addSong(title);
+    			}
+    			else{
+    				return false;
+    			}
     		}
     	}
-    	updateAutomaticPlaylist();
+    	ArrayList<Album> album = store.searchAlbumByArtist(artist);
+    	if (album == null){
+    		return false;
+    	}
+    	for (Album storeAlbum : album) {
+    		if (storeAlbum.getTitle().equalsIgnoreCase(title)){
+    			Album newAlbum = new Album(storeAlbum.getTitle(),storeAlbum.getArtist(),storeAlbum.getGenre(),storeAlbum.getYear());
+    			newAlbum.addSong(song.getArtistName());
+    			albums.add(storeAlbum);
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+   
+    public void overwritePartialAlbum(Album album){
+    	String title = album.getTitle();
+    	String artist = album.getArtist();
+    	String genre = album.getGenre();
+    	int year = album.getYear();
+    	for (Album libraryAlbum : albums){
+    		String libraryTitle = libraryAlbum.getTitle();
+        	String libraryArtist = libraryAlbum.getArtist();
+        	String libraryGenre = libraryAlbum.getGenre();
+        	int libraryYear = libraryAlbum.getYear();
+    		if (title.equalsIgnoreCase(libraryTitle) && artist.equalsIgnoreCase(libraryArtist) 
+    				&& genre.equalsIgnoreCase(libraryGenre) && (year == libraryYear)){
+    			if (album != libraryAlbum){
+    				albums.remove(libraryAlbum);
+    			}
+    		}
+    	}
     }
     
     private void updateAutomaticPlaylist(){
@@ -358,6 +449,7 @@ public class LibraryModel {
     		recentPlaylist.addSongs(recentSongs.element());
     	}
     }
+    
     private void updateFrequentlyPlayedPlaylist(){
 		frequentPlayedPlaylist.wipe();
     	Song[] keys = new Song[10];
@@ -393,61 +485,105 @@ public class LibraryModel {
     	}
     }
     
+	private void updateGenrePlaylist(){
+		boolean found;
+		for (AutoPlaylist pl : genre) {
+			pl.wipe();
+		}
+		Enumeration<Song> songList = songs.keys();
+        while (songList.hasMoreElements()) {
+        	found = false;
+        	Song song = songList.nextElement();
+    		if (genre.size() == 0){
+    			AutoPlaylist newPl = new AutoPlaylist(song.getGenre());
+    			newPl.addSongs(song);
+    			genre.add(newPl);
+    		}
+        	for (AutoPlaylist pl : genre){
+        		if (song.getGenre().equalsIgnoreCase(pl.getName())){
+        			pl.addSongs(song);
+        			found = true;
+        		}
+        	}
+        	if (found == false){
+        		AutoPlaylist newPl = new AutoPlaylist(song.getGenre());
+        		newPl.addSongs(song);
+        		genre.add(newPl);
+        	}
+        }		
+	}
+	
+	private void updateTopRatedPlaylist(){
+		topRated.wipe();
+		Enumeration<Song> songList = ratings.keys();
+        while (songList.hasMoreElements()) {
+        	Song song = songList.nextElement();
+        	if (ratings.get(song) >= 4){
+        		topRated.addSongs(song);
+        	}
+        }
+	}
+	
     public AutoPlaylist getRecentlyPlayedPlaylist(){
     	return recentPlaylist;
     }
     
-    public AutoPlaylist getFrequentlyPlayedPlaylist(){
+    public AutoPlaylist getFrequentlyPlayedPlaylist() {
     	return frequentPlayedPlaylist;
     }
     
-    public void setRating(Song song,int rating) {
-		if (rating >= 1 && rating <= 5) {
-			Enumeration<Song> ratingList = ratings.keys();
-			while (ratingList.hasMoreElements()){
-				Song currentSong = ratingList.nextElement();
-				if (currentSong == song){
-					ratings.remove(currentSong);
-				}
-	        }
-			Enumeration<Song> songList = songs.keys();
-			while (songList.hasMoreElements()) {
-				Song currentSong = songList.nextElement();
-	        	if (currentSong.equals(song)){
-	        			ratings.put(song, rating);
-	        				if (rating == 5) {
-	        					favourites.addSongs(song);
-	        				}		
-	        	}
-	        }
-		}
+    public ArrayList<AutoPlaylist> getGenrePlaylist(){
+    	return genre;
     }
-		
-	public int getRating(Song song) {
-		Enumeration<Song> songList = ratings.keys();
+    
+    public void playSong(String title, String artist){
+    	Song song = findSong(title,artist);
+    	if (song != null){}
+        	int plays = songs.get(song);
+        	songs.remove(song);
+        	songs.put(song, plays+1);
+        	if (recentSongs.contains(song)){
+        		recentSongs.remove(song);
+        		recentSongs.add(song);
+        		}
+        	else {
+        		if (recentSongs.size() < 10) {
+        			recentSongs.add(song);
+        		}
+        		else {
+        			recentSongs.remove();
+        			recentSongs.add(song);
+        		}
+        	}
+    	updateAutomaticPlaylist();
+    }
+    
+	public int getPlays(String title, String artist){
+		Song song = findSong(title,artist);
+		if (song == null){
+			System.out.println("song not in library");
+			return 0;
+		}
+		Enumeration<Song> songList = songs.keys();
 		while (songList.hasMoreElements()) {
 			Song currentSong = songList.nextElement();
-        	if (currentSong.equals(song)){
-        		return ratings.get(song);
-        	}	
+			if (currentSong == song){
+				return songs.get(currentSong);
+			}
 		}
 		return 0;
 	}
 	
-	public boolean inFavourites(Song song){
-		for (Song songs : favourites.getSongs()){
-			if (song == songs){
-				return true;
-			}
-		}
-		return false;
+	private Song findSong(String title, String artist){
+    	Enumeration<Song> songList = songs.keys();
+        while (songList.hasMoreElements()) {
+        	Song song = songList.nextElement();
+        	if (song.getSongTitle().equalsIgnoreCase(title) && song.getArtistName().equalsIgnoreCase(artist)) {
+        		return song;
+        	}
+        }
+		return null;
 	}
-	
-	public void addFavourite(Song song){
-		favourites.addSongs(song);		
-	}
-	
-	
 	// sort songs by title
 	
 	public ArrayList<Song> getSongsSortedByTitle() {
@@ -531,7 +667,6 @@ public class LibraryModel {
 	    
 	    return songList;
 	}
-	
 	// remove song from library
 	public boolean removeSong(String title, String artist) {
 	    // Find the song to remove
@@ -564,7 +699,7 @@ public class LibraryModel {
 	        if (album.getTitle().equals(title) && album.getArtist().equals(artist)) {
 	            albumToRemove = album;
 	            break;
-	        }
+	        } 
 	    }
 	    albums.remove(albumToRemove);
 	    // Find all songs from this album
@@ -583,6 +718,10 @@ public class LibraryModel {
 	    
 	    return true;
 	}
+
+	
+
+
 	
 	// shuffle songs
 	
