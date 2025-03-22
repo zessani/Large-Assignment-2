@@ -77,7 +77,7 @@ public class users {
         }
         return false;
     }
-	
+	  
 	public void logout() {
         if (currentUser != null) {
         	userLibraries.put(currentUser.getUsername(), currentUser.getLibrary());
