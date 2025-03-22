@@ -242,5 +242,65 @@ class LibraryModelTest {
 			int plays = library.getPlays("Hey Ya", "Outkast");
 			assertEquals(plays, 0);
 		}
+		
+		@Test
+		void testSorting() {
+			MusicStore store = new MusicStore() {
+				@Override
+				public void initializeMusicStore() {} 
+			};  
+			LibraryModel library = new LibraryModel(store);
+			
+			Song song1 = new Song("NOKIA", "Drake", "New Drake","Genre");
+	        Song song2 = new Song("Distance", "AP", "New AP","Genre");
+	        Song song3 = new Song("Charge Me", "Opium", "New OP","Genre");
+			
+			// add to library
+	        
+	        library.addSong(song1, true);
+	        library.addSong(song2, true);
+	        library.addSong(song3, true);
+	        
+	        // Set ratings for the songs
+	        library.setRating(song1, 3);
+	        library.setRating(song2, 5);
+	        library.setRating(song3, 1);
+	        
+	        // Test sort by title
+	        ArrayList<Song> titleSorted = library.getSongsSortedByTitle();
+	        assertEquals("Charge Me", titleSorted.get(0).getSongTitle());
+	        assertEquals("Distance", titleSorted.get(1).getSongTitle());
+	        assertEquals("NOKIA", titleSorted.get(2).getSongTitle());  
+	        
+	        // test by artist
+	        ArrayList<Song> artistSorted = library.getSongsSortedByArtist();
+	        assertEquals("AP", artistSorted.get(0).getArtistName());
+	        assertEquals("Drake", artistSorted.get(1).getArtistName());
+	        assertEquals("Opium", artistSorted.get(2).getArtistName());
+	        
+	        // by rating
+	        ArrayList<Song> ratingSorted = library.getSongsSortedByRating();
+	        assertEquals("Distance", ratingSorted.get(0).getSongTitle()); 
+	        assertEquals("NOKIA", ratingSorted.get(1).getSongTitle());   
+	        assertEquals("Charge Me", ratingSorted.get(2).getSongTitle());
+	        
+	        // Test removing a song
+	        
+	        library.setRating(song1, 5);
+	        assertTrue(library.removeSong("NOKIA", "Drake"));
+	        assertFalse(library.inFavourites(song1));
+	        
+	        ArrayList<Song> results = library.searchSongByTitle("NOKIA");
+	        assertTrue(results.isEmpty());
+	        
+	        Album album = new Album("New Album", "Drake", "Pop", 2023);
+	        library.addAlbum(album, true);
+	        assertTrue(library.removeAlbum("New Album", "Drake"));
+	        
+	        // All songs from album should be gone
+	        results = library.searchSongByTitle("NOKIA");
+	        assertTrue(results.isEmpty());
+	        
+		}  
 }
  

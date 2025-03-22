@@ -583,5 +583,142 @@ public class LibraryModel {
         }
 		return null;
 	}
+	// sort songs by title
+	
+	public ArrayList<Song> getSongsSortedByTitle() {
+		    // Get all songs from dictionary
+		    ArrayList<Song> songList = new ArrayList<>();
+		    Enumeration<Song> songsEnum = songs.keys();
+		    
+		    while (songsEnum.hasMoreElements()) {
+		        songList.add(songsEnum.nextElement());
+		    }
+		    // sort by title
+		    for (int i = 0; i < songList.size() - 1; i++) {
+		        for (int j = 0; j < songList.size() - i - 1; j++) {
+		            Song song1 = songList.get(j);
+		            Song song2 = songList.get(j + 1);
+		            
+		            String title1 = song1.getSongTitle();
+		            String title2 = song2.getSongTitle();
+		            if (title1.compareTo(title2) > 0) {
+		                 
+		                songList.set(j, song2);
+		                songList.set(j + 1, song1);
+		            }
+		        }
+		    }   
+		    return songList;
+		}
+	// sort by artist
+	
+	public ArrayList<Song> getSongsSortedByArtist() {
+
+	    ArrayList<Song> songList = new ArrayList<>();
+	    Enumeration<Song> songsEnum = songs.keys();
+	    
+	    while (songsEnum.hasMoreElements()) {
+	        songList.add(songsEnum.nextElement());
+	    }
+	    for (int i = 0; i < songList.size() - 1; i++) {
+	        for (int j = 0; j < songList.size() - i - 1; j++) {
+	            Song song1 = songList.get(j);
+	            Song song2 = songList.get(j + 1);
+	            
+	            String artist1 = song1.getArtistName();
+	            String artist2 = song2.getArtistName();
+	            
+	            if (artist1.compareTo(artist2) > 0) {
+	           
+	                songList.set(j, song2);
+	                songList.set(j + 1, song1);
+	            }
+	        }
+	    }
+	    
+	    return songList;
+	}
+	
+	// sort by rating (high to low)
+	
+	public ArrayList<Song> getSongsSortedByRating() {
+	 
+	    ArrayList<Song> songList = new ArrayList<>();
+	    Enumeration<Song> songsEnum = songs.keys();
+	    
+	    while (songsEnum.hasMoreElements()) {
+	        songList.add(songsEnum.nextElement());
+	    }
+	    for (int i = 0; i < songList.size() - 1; i++) {
+	        for (int j = 0; j < songList.size() - i - 1; j++) {
+	            Song song1 = songList.get(j);
+	            Song song2 = songList.get(j + 1);
+	            
+	            int rating1 = getRating(song1);
+	            int rating2 = getRating(song2);
+	            
+	            if (rating1 < rating2) {
+	                songList.set(j, song2);
+	                songList.set(j + 1, song1);
+	            } 
+	        }
+	    }
+	    
+	    return songList;
+	}
+	
+	// remove song from library
+	public boolean removeSong(String title, String artist) {
+	    // Find the song to remove
+	    Song songToRemove = null;
+	    Enumeration<Song> songList = songs.keys();
+	    
+	    while (songList.hasMoreElements()) {
+	        Song song = songList.nextElement();
+	        if (song.getSongTitle().equals(title) && song.getArtistName().equals(artist)) {
+	            songToRemove = song;
+	            break;
+	        }
+	    }
+	    // remove from playlists, favourites, ratings
+	    songs.remove(songToRemove);
+	    ratings.remove(songToRemove);
+	    favourites.removeSong(songToRemove);
+	    for (Playlist playlist : playlists) {
+	        playlist.removeSong(songToRemove);
+	    } 
+	    return true;
+	}
+	
+	// remove album from library
+	
+	public boolean removeAlbum(String title, String artist) {
+	    // Find the album to remove
+	    Album albumToRemove = null;
+	    for (Album album : albums) {
+	        if (album.getTitle().equals(title) && album.getArtist().equals(artist)) {
+	            albumToRemove = album;
+	            break;
+	        }
+	    }
+	    albums.remove(albumToRemove);
+	    // Find all songs from this album
+	    ArrayList<Song> albumSongs = new ArrayList<>();
+	    Enumeration<Song> songList = songs.keys();
+	    
+	    while (songList.hasMoreElements()) {
+	        Song song = songList.nextElement();
+	        if (song.getAlbumTitle().equals(title) && song.getArtistName().equals(artist)) {
+	            albumSongs.add(song);
+	        }
+	    }
+	    for (Song song : albumSongs) {
+	        removeSong(song.getSongTitle(), song.getArtistName());
+	    }
+	    
+	    return true;
+	}
+
+	
 }
 
