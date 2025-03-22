@@ -592,7 +592,7 @@ public class LibraryModel {
 	    Enumeration<Song> songsEnum = songs.keys();
 	    
 	    while (songsEnum.hasMoreElements()) {
-	        songList.add(songsEnum.nextElement());
+	        songList.add(songsEnum.nextElement()); 
 	    }
 	    // Shuffle them
 	    Collections.shuffle(songList);
@@ -606,7 +606,7 @@ public class LibraryModel {
 
 	    Playlist playlist = searchPlaylistByName(playlistName);
 	    if (playlist == null) {
-	        return null;
+	        return null;  
 	    }
 	    ArrayList<Song> playlistSongs = new ArrayList<>(playlist.getSongs());
 	    
