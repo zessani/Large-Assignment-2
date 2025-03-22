@@ -327,7 +327,7 @@ public class View {
                 if (!name.isEmpty()) {
                     model.newPlaylist(name);
                     System.out.println("Playlist created!");
-                }
+                }   
                 break;
                 
             case "3": // Add to playlist

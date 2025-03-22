@@ -25,7 +25,7 @@ public class Song {
 		return this.album;
 	}
 	
-	public String getGenre(){
+	public String getGenre() {
 		return this.genre;
 	}
 }

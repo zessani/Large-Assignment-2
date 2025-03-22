@@ -16,7 +16,7 @@ public class LibraryModel {
 	private ArrayList<Album> albums;
 	private Dictionary<Song, Integer> songs;
 	private Dictionary<Song, Integer> ratings;
-	private ArrayList<Playlist> playlists;
+	private ArrayList<Playlist> playlists; 
 	private AutoPlaylist recentPlaylist;
 	private AutoPlaylist frequentPlayedPlaylist;
 	private AutoPlaylist favourites;
@@ -666,7 +666,6 @@ public class LibraryModel {
 	    
 	    return songList;
 	}
-	
 	// remove song from library
 	public boolean removeSong(String title, String artist) {
 	    // Find the song to remove

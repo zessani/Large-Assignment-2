@@ -31,7 +31,7 @@ public class AutoPlaylist {
 	public String getName(){
 		return this.name;
 	}
-	
+	   
 	public ArrayList<Song> getSongs() {
 	    return new ArrayList<>(songs);
 	}
