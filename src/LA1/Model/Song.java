@@ -9,7 +9,7 @@ public class Song {
 	public Song(String song, String artist, String album, String genre){
 		this.name = song;
 		this.artist = artist;
-		this.album = album;
+		this.album = album; 
 		this.genre = genre;
 	}
 	

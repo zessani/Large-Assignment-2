@@ -301,7 +301,7 @@ public class LibraryModel {
                 return true;
             }
         }
-        return false;
+        return false;  
     }
 
     public boolean addSong(Song toAddSong, boolean force){
@@ -746,14 +746,52 @@ public class LibraryModel {
 	    Playlist playlist = searchPlaylistByName(playlistName);
 	    if (playlist == null) {
 	        return null;  
-	    }
+	    }  
 	    ArrayList<Song> playlistSongs = new ArrayList<>(playlist.getSongs());
 	    
 	    Collections.shuffle(playlistSongs);
 	    
 	    return playlistSongs;
 	}
-
+	
+	// C part d: check album info from song
+	public Album getAlbumInfo(String songTitle, String artist) {
+	    Song song = findSong(songTitle, artist);	
+	    if (song == null) {
+	        return null;
+	    }
+	    String albumTitle = song.getAlbumTitle();
+	    // First check in user's library
+	    for (Album album : albums) {
+	        if (album.getTitle().equals(albumTitle) && album.getArtist().equals(artist)) {
+	            return album;
+	        }
+	    }
+	    
+	    // Check if album is in store
+	    ArrayList<Album> storeAlbums = store.searchAlbumByTitle(albumTitle);
+	    if (storeAlbums != null) {
+	        for (Album album : storeAlbums) {
+	            if (album.getArtist().equals(artist)) {
+	                return album;
+	            }
+	        }
+	    }
+	    return null;
+	}
+	
+	// check if album is in library
+	
+	public boolean isAlbumInLibrary(String albumTitle, String artist) {
+	    for (Album album : albums) {
+	        if (album.getTitle().equals(albumTitle) && 
+	            album.getArtist().equals(artist)) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+ 
 	
 }
 
