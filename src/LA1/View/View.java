@@ -22,7 +22,7 @@ public class View {
     
     public View(MusicStore store) {
         this.store = store;
-        this.scanner = new Scanner(System.in);
+        this.scanner = new Scanner(System.in);  
         
         try {
             this.userManager = new users(store);
@@ -433,7 +433,7 @@ public class View {
                             System.out.println("Invalid rating.");
                         }
                     } else if (choice.equals("2")) {
-                        boolean newState = !model.inFavourites(song);
+                        boolean newState = !song.isFavorite();
                         model.markFavorite(song.getSongTitle(), song.getArtistName(), newState);
                         if (newState) {
                             System.out.println("Added to favorites!");
