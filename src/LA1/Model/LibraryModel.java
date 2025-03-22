@@ -1,6 +1,7 @@
 package LA1.Model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -321,7 +322,7 @@ public class LibraryModel {
                 albums.add(newAlbum);
                 return true;
             }
-        }
+        }  
         
         return false;
     }
@@ -581,6 +582,37 @@ public class LibraryModel {
 	    }
 	    
 	    return true;
+	}
+	
+	// shuffle songs
+	
+	public ArrayList<Song> getShuffledSongs() {
+	    // Get all songs
+	    ArrayList<Song> songList = new ArrayList<>();
+	    Enumeration<Song> songsEnum = songs.keys();
+	    
+	    while (songsEnum.hasMoreElements()) {
+	        songList.add(songsEnum.nextElement());
+	    }
+	    // Shuffle them
+	    Collections.shuffle(songList);
+	    
+	    return songList;
+	}
+	
+	// shuffle songs in playlist
+	
+	public ArrayList<Song> getShuffledPlaylist(String playlistName) {
+
+	    Playlist playlist = searchPlaylistByName(playlistName);
+	    if (playlist == null) {
+	        return null;
+	    }
+	    ArrayList<Song> playlistSongs = new ArrayList<>(playlist.getSongs());
+	    
+	    Collections.shuffle(playlistSongs);
+	    
+	    return playlistSongs;
 	}
 
 	
