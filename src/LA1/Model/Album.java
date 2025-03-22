@@ -58,7 +58,7 @@ public class Album {
 		
 	// adds a song to the album
 	public void addSong (String songTitle) {
-		songs.add(new Song(songTitle, this.artist, this.title));
+		songs.add(new Song(songTitle, this.artist, this.title, this.genre));
 	}
 
 }

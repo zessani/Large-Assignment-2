@@ -433,7 +433,7 @@ public class View {
                             System.out.println("Invalid rating.");
                         }
                     } else if (choice.equals("2")) {
-                        boolean newState = !song.isFavorite();
+                        boolean newState = !model.inFavourites(song);
                         model.markFavorite(song.getSongTitle(), song.getArtistName(), newState);
                         if (newState) {
                             System.out.println("Added to favorites!");
