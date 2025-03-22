@@ -21,7 +21,7 @@ public class MusicStoreTest {
 	@Test
 	public void testAddSongs(){
 		MusicStore ms = new MusicStore();
-		Song song = new Song("My Way", "Frank Sinatraa", "single");
+		Song song = new Song("My Way", "Frank Sinatraa", "single", "genre");
 		int songListSize = ms.getNumberOfSongs();
 		ms.addSong(song);
 		assertTrue(songListSize+1 == ms.getNumberOfSongs());

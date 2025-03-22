@@ -4,11 +4,13 @@ public class Song {
 	private String name;
 	private String artist;
 	private String album;
+	private String genre;
 	
-	public Song(String song, String artist, String album){
+	public Song(String song, String artist, String album, String genre){
 		this.name = song;
 		this.artist = artist;
 		this.album = album;
+		this.genre = genre;
 	}
 	
 	public String getSongTitle(){
@@ -21,5 +23,9 @@ public class Song {
 
 	public String getAlbumTitle(){
 		return this.album;
+	}
+	
+	public String getGenre(){
+		return this.genre;
 	}
 }
