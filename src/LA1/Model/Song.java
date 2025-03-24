@@ -28,4 +28,17 @@ public class Song {
 	public String getGenre() {
 		return this.genre;
 	}
+	
+	public boolean equals(Song song){
+		if (this.name.equalsIgnoreCase(song.getSongTitle())){
+			if (this.artist.equalsIgnoreCase(song.getArtistName())){
+				if (this.album.equalsIgnoreCase(song.getAlbumTitle())){
+					if (this.genre.equalsIgnoreCase(song.getGenre())){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 }

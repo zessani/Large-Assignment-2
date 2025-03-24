@@ -16,6 +16,10 @@ public class AutoPlaylist {
 		this.songs.add(song);
 	}
 	
+	public void addSongsToStart(Song song){
+		this.songs.add(0, song);
+	}
+	
 	public void wipe(){
 		this.songs.clear();
 	}
