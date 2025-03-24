@@ -347,7 +347,7 @@ class LibraryModelTest {
 			}
 		
 		@Test
-		void testAutoPlayllist(){
+		void testAutoPlaylist(){
 			MusicStore store = new MusicStore();
 			LibraryModel library = new LibraryModel(store);
 			library.addSong("Daydreamer", "Adele");
@@ -396,6 +396,21 @@ class LibraryModelTest {
 			Song lastPlayed = songs.get(9);
 			assertTrue(recentlyPlayed.getSongTitle().equalsIgnoreCase("Hometown Glory"));
 			assertTrue(lastPlayed.getSongTitle().equalsIgnoreCase("Daydreamer"));
+		}
+		
+		@Test
+		void testPartialAlbums(){
+			MusicStore store = new MusicStore();
+			LibraryModel library = new LibraryModel(store);
+			library.addSong("Daydreamer", "Adele");
+			ArrayList<String> titles = library.getAllAlbumTitles();
+			assertEquals(titles.size(),1);
+			library.addSong("Burn Bright", "The Heavy");
+			library.addSong("People Lead", "Ben Harper");
+			titles = library.getAllAlbumTitles();
+			assertEquals(titles.size(),3);
+			ArrayList<String> songTitles = library.getAllSongTitles();
+			assertEquals(songTitles.size(),3);
 		}
 }
  
