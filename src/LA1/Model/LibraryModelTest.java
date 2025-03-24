@@ -411,6 +411,20 @@ class LibraryModelTest {
 			assertEquals(titles.size(),3);
 			ArrayList<String> songTitles = library.getAllSongTitles();
 			assertEquals(songTitles.size(),3);
+
+			library.addSong("Best for Last", "Adele");
+			library.addSong("Chasing Pavements", "Adele");
+			library.addSong("Cold Shoulder", "Adele");
+			library.addSong("Crazy for You", "Adele");
+			library.addSong("Melt My Heart to Stone", "Adele");
+			library.addSong("First Love", "Adele");
+			library.addSong("Right as Rain", "Adele");
+			library.addSong("Make You Feel My Love", "Adele");
+			library.addSong("My Same", "Adele");
+			library.addSong("Tired", "Adele");
+			library.addSong("Hometown Glory", "Adele");
+			titles = library.getAllAlbumTitles();
+			assertEquals(titles.size(),3);
 		}
 }
  

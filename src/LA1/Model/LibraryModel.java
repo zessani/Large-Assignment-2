@@ -392,20 +392,23 @@ public class LibraryModel {
     
     //adds a partial album to the albums list based on the song's album
     public boolean partialAlbumAdd(Song song){
+    	boolean partialAlbum = false;
     	String artist = song.getArtistName();
     	String title = song.getAlbumTitle();
-    	for (Album libraryAlbum : albums){
-    		if (libraryAlbum.getTitle().equalsIgnoreCase(title)){
-    			if (libraryAlbum.getSong(title) == null){
-    				libraryAlbum.addSong(title);
-    			}
-    			else{
-    				return false;
-    			}
-    		}
-    	}
     	ArrayList<Album> album = store.searchAlbumByArtist(artist);
     	if (album == null){
+    		return false;
+    	}
+    	for (Album libraryAlbum : albums){
+    		if (libraryAlbum.getTitle().equalsIgnoreCase(title)){
+				partialAlbum = true;
+    			if (libraryAlbum.getSong(title) == null){
+    				libraryAlbum.addSong(title);
+    				}
+    			}
+    		}
+    	checkFullAlbum(song);
+    	if (partialAlbum){
     		return false;
     	}
     	for (Album storeAlbum : album) {
@@ -418,7 +421,23 @@ public class LibraryModel {
     	}
     	return false;
     }
-   
+    public void checkFullAlbum(Song song){
+    	int i = 0;
+    	while (i < albums.size()) {
+    		Album libraryAlbum = albums.get(i); 
+    		ArrayList<Album> storeAlbums = store.searchAlbumByTitle(libraryAlbum.getTitle());
+    		for (Album storeAlbum : storeAlbums){
+    			if (storeAlbum.getArtist().equals(libraryAlbum.getArtist())){
+    				if (storeAlbum.countSongs() == libraryAlbum.countSongs()){
+    					albums.remove(libraryAlbum);
+    					albums.add(storeAlbum);
+    				}
+    			}
+    		}
+    		i++;
+        }
+    }
+    
     //overwrites any partial albums if possible
     public void overwritePartialAlbum(Album album){
     	String title = album.getTitle();
