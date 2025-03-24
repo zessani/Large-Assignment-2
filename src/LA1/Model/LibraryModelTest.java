@@ -213,7 +213,7 @@ class LibraryModelTest {
 			library.addSong("My Same", "Adele");
 			library.addSong("Tired", "Adele");
 			library.addSong("Hometown Glory", "Adele");
-			ArrayList<Song> result =library.searchSongByGenre("Pop");
+			ArrayList<Song> result = library.searchSongByGenre("Pop");
 			assertEquals(12,result.size());
 			for (int i = 0; i < 10; i++) {
 				if (i < 9){
@@ -300,7 +300,102 @@ class LibraryModelTest {
 	        // All songs from album should be gone
 	        results = library.searchSongByTitle("NOKIA");
 	        assertTrue(results.isEmpty());
-	        
 		}  
+		
+		@Test
+		void testGenre(){
+			MusicStore store = new MusicStore();
+			LibraryModel library = new LibraryModel(store);
+			library.addSong("Daydreamer", "Adele");
+			library.addSong("Best for Last", "Adele");
+			library.addSong("Chasing Pavements", "Adele");
+			library.addSong("Cold Shoulder", "Adele");
+			library.addSong("Crazy for You", "Adele");
+			library.addSong("Melt My Heart to Stone", "Adele");
+			library.addSong("First Love", "Adele");
+			library.addSong("Right as Rain", "Adele");
+			library.addSong("Make You Feel My Love", "Adele");
+			library.addSong("My Same", "Adele");
+			library.addSong("Tired", "Adele");
+			library.addSong("Hometown Glory", "Adele");
+			ArrayList<AutoPlaylist> genre = library.getGenrePlaylist();
+			assertEquals(genre.size(), 1);
+			AutoPlaylist pop = genre.get(0);
+			assertTrue(pop.getName().equalsIgnoreCase("Pop"));
+			assertEquals(pop.getPlaylistSize(), 12);
+			
+			library.addSong("Made for You", "OneRepublic");
+			library.addSong("All the Right Moves","OneRepublic");
+			library.addSong("Secrets", "OneRepublic");
+			library.addSong("Everybody Loves Me", "OneRepublic");
+			library.addSong("Missing Persons 1 & 2", "OneRepublic");
+			library.addSong("Good Life", "OneRepublic");
+			library.addSong("All This Time", "OneRepublic");
+			library.addSong("Fear", "OneRepublic");
+			library.addSong("Waking Up", "OneRepublic");
+			library.addSong("Marchin On", "OneRepublic");
+			library.addSong("Lullaby", "OneRepublic");
+			assertEquals(genre.size(), 2);
+			AutoPlaylist rock = genre.get(1);
+			assertTrue(rock.getName().equalsIgnoreCase("Rock"));
+			assertEquals(rock.getPlaylistSize(), 11);
+			
+			library.addSong("Burn Bright", "The Heavy");
+			assertEquals(genre.size(),2);
+			library.addSong("People Lead", "Ben Harper");
+			assertEquals(genre.size(),3);
+			}
+		
+		@Test
+		void testAutoPlayllist(){
+			MusicStore store = new MusicStore();
+			LibraryModel library = new LibraryModel(store);
+			library.addSong("Daydreamer", "Adele");
+			library.addSong("Best for Last", "Adele");
+			library.addSong("Chasing Pavements", "Adele");
+			library.addSong("Cold Shoulder", "Adele");
+			library.addSong("Crazy for You", "Adele");
+			library.addSong("Melt My Heart to Stone", "Adele");
+			library.addSong("First Love", "Adele");
+			library.addSong("Right as Rain", "Adele");
+			library.addSong("Make You Feel My Love", "Adele");
+			library.addSong("My Same", "Adele");
+			library.addSong("Tired", "Adele");
+			library.addSong("Hometown Glory", "Adele");
+			ArrayList<Song> result = library.searchSongByGenre("Pop");
+			assertEquals(12,result.size());
+			for (int i = 0; i < 10; i++) {
+				if (i < 9){
+					library.playSong("Best for Last","Adele");
+					library.playSong("Chasing Pavements","Adele");
+				}
+				library.playSong("Tired","Adele");
+			}
+			library.playSong("Daydreamer", "Adele");
+			library.playSong("Cold Shoulder", "Adele");
+			library.playSong("Crazy for You", "Adele");
+			library.playSong("Melt My Heart to Stone", "Adele");
+			library.playSong("First Love", "Adele");
+			library.playSong("Right as Rain", "Adele");
+			library.playSong("Make You Feel My Love", "Adele");
+			library.playSong("My Same", "Adele");
+			library.playSong("Tired", "Adele");
+			library.playSong("Hometown Glory", "Adele");
+			AutoPlaylist playlist = library.getFrequentlyPlayedPlaylist();
+			AutoPlaylist playlist2 = library.getRecentlyPlayedPlaylist();
+			ArrayList<Song> songs = playlist.getSongs();
+			Song highestPlays = songs.get(0);
+			Song secondHighestPlays = songs.get(1);
+			assertEquals(11, library.getPlays(highestPlays.getSongTitle(), highestPlays.getArtistName()));
+			assertTrue(highestPlays.getSongTitle().equalsIgnoreCase("Tired"));
+			assertEquals(9, library.getPlays(secondHighestPlays.getSongTitle(), secondHighestPlays.getArtistName()));
+			assertTrue(library.getPlays(highestPlays) > library.getPlays(secondHighestPlays));
+			
+			songs = playlist2.getSongs();
+			Song recentlyPlayed = songs.get(0);
+			Song lastPlayed = songs.get(9);
+			assertTrue(recentlyPlayed.getSongTitle().equalsIgnoreCase("Hometown Glory"));
+			assertTrue(lastPlayed.getSongTitle().equalsIgnoreCase("Daydreamer"));
+		}
 }
  
