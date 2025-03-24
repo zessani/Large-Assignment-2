@@ -13,10 +13,7 @@ import LA1.MusicStore;
 class LibraryModelTest {
 	@Test
 	void test(){ 
-		MusicStore store = new MusicStore() {
-			@Override
-			public void initializeMusicStore() {} 
-		};  
+		MusicStore store = new MusicStore();
 		LibraryModel library = new LibraryModel(store);
 		 
 		Song song1 = new Song("NOKIA", "Drake", "New Drake","Genre");
@@ -172,7 +169,9 @@ class LibraryModelTest {
 			assertFalse(added);
 			added = library.addSong(song2, false);
 			assertTrue(added);
-			
+			added = library.addSong(song, added);
+			assertTrue(added);
+			 
 		}
 		
 		@Test
@@ -426,5 +425,87 @@ class LibraryModelTest {
 			titles = library.getAllAlbumTitles();
 			assertEquals(titles.size(),3);
 		}
-}
+		
+		@Test
+		void testShuffle() {
+			MusicStore store = new MusicStore() {
+		        @Override
+		        public void initializeMusicStore() {}
+		    };
+		    LibraryModel library = new LibraryModel(store);
+		    
+		    // Add test songs
+		    Song song1 = new Song("NOKIA", "Drake", "New Drake","Genre");
+	        Song song2 = new Song("Distance", "AP", "New AP","Genre");
+	        Song song3 = new Song("Charge Me", "Opium", "New OP","Genre");
+		    
+		    library.addSong(song1, true);
+		    library.addSong(song2, true);
+		    library.addSong(song3, true);
+		    ArrayList<Song> shuffled = library.getShuffledSongs();
+		    
+		    assertTrue(shuffled.contains(song1));
+		    assertTrue(shuffled.contains(song2));      
+		    assertTrue(shuffled.contains(song3));
+		    
+		    library.newPlaylist("Test Playlist");
+		    library.addToPlaylist("Test Playlist", "NOKIA", "Drake");
+		    library.addToPlaylist("Test Playlist", "Distance", "AP");
+		    
+		    ArrayList<Song> playlistShuffled = library.getShuffledPlaylist("Test Playlist");
+		    
+		    assertEquals(2, playlistShuffled.size());
+		     
+		    // Check songs present
+		    boolean hasSong1 = false;
+		    boolean hasSong2 = false;  
+		    boolean hasSong3 = false;
+		    
+		    for (Song song : playlistShuffled) {
+		        if (song.getSongTitle().equals("NOKIA")) hasSong1 = true;
+		        if (song.getSongTitle().equals("Distance")) hasSong2 = true;
+		    }
+		    assertTrue(hasSong1);
+		    assertTrue(hasSong2);
+		    assertFalse(hasSong3);
+		    
+		    assertNull(library.getShuffledPlaylist("null"));
+		}  
+		
+		@Test
+		void testAlbumInfo(){
+		    MusicStore store = new MusicStore() {
+		        @Override
+		        public void initializeMusicStore() {}
+		    };
+		    LibraryModel library = new LibraryModel(store);
+
+		    Song song1 = new Song("NOKIA", "Drake", "Test Album", "Pop"); 
+		    Album album = new Album("Test Album", "Drake", "Pop", 2023);
+
+		    library.addSong(song1, true);
+		    library.addAlbum(album, true);
+
+		    Album result = library.getAlbumInfo("NOKIA", "Drake");
+		    assertNotNull(result);
+		    assertEquals("Test Album", result.getTitle()); 
+		    assertEquals("Drake", result.getArtist());
+		    
+		    boolean inLibrary = library.isAlbumInLibrary("Test Album", "Drake");
+		    assertTrue(inLibrary);
+		    
+		    boolean inLibrary2 = library.isAlbumInLibrary("Album", "Drake");
+		    assertFalse(inLibrary2);
+		    
+		 
+		    Album notFound = library.getAlbumInfo("null", "null");
+		    assertNull(notFound);
+		    
+		    Song testSong = new Song("test", "Unknown", "Missing Album", "Unknown");
+		    library.addSong(testSong, true);
+		     
+		    Album testAlbum = library.getAlbumInfo("test", "Unknown");
+		    assertNull(testAlbum);
+		}   
+} 
  

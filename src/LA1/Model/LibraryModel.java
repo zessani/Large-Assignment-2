@@ -1,6 +1,7 @@
 package LA1.Model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -300,7 +301,7 @@ public class LibraryModel {
                 return true;
             }
         }
-        return false;
+        return false;  
     }
     
     //adds an album from the store, but can also be added not from it
@@ -755,7 +756,7 @@ public class LibraryModel {
 	        if (album.getTitle().equals(title) && album.getArtist().equals(artist)) {
 	            albumToRemove = album;
 	            break;
-	        }
+	        } 
 	    }
 	    albums.remove(albumToRemove);
 	    // Find all songs from this album
@@ -775,6 +776,79 @@ public class LibraryModel {
 	    return true;
 	}
 
+	
+
+
+	
+	// shuffle songs
+	
+	public ArrayList<Song> getShuffledSongs() {
+	    // Get all songs
+	    ArrayList<Song> songList = new ArrayList<>();
+	    Enumeration<Song> songsEnum = songs.keys();
+	    
+	    while (songsEnum.hasMoreElements()) {
+	        songList.add(songsEnum.nextElement()); 
+	    }
+	    // Shuffle them
+	    Collections.shuffle(songList);
+	    
+	    return songList;
+	}
+	
+	// shuffle songs in playlist
+	
+	public ArrayList<Song> getShuffledPlaylist(String playlistName) {
+
+	    Playlist playlist = searchPlaylistByName(playlistName);
+	    if (playlist == null) {
+	        return null;  
+	    }  
+	    ArrayList<Song> playlistSongs = new ArrayList<>(playlist.getSongs());
+	    
+	    Collections.shuffle(playlistSongs);
+	    
+	    return playlistSongs;
+	}
+	
+	// C part d: check album info from song
+	public Album getAlbumInfo(String songTitle, String artist) {
+	    Song song = findSong(songTitle, artist);	
+	    if (song == null) {
+	        return null;
+	    }
+	    String albumTitle = song.getAlbumTitle();
+	    // First check in user's library
+	    for (Album album : albums) {
+	        if (album.getTitle().equals(albumTitle) && album.getArtist().equals(artist)) {
+	            return album;
+	        }
+	    }
+	    
+	    // Check if album is in store
+	    ArrayList<Album> storeAlbums = store.searchAlbumByTitle(albumTitle);
+	    if (storeAlbums != null) {
+	        for (Album album : storeAlbums) {
+	            if (album.getArtist().equals(artist)) {
+	                return album;
+	            }
+	        }
+	    }
+	    return null;
+	}
+	
+	// check if album is in library
+	
+	public boolean isAlbumInLibrary(String albumTitle, String artist) {
+	    for (Album album : albums) {
+	        if (album.getTitle().equals(albumTitle) && 
+	            album.getArtist().equals(artist)) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+ 
 	
 }
 
