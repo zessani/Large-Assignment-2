@@ -1,10 +1,10 @@
 package LA1.Model;
 
 public class Song {
-	private String name;
-	private String artist;
-	private String album;
-	private String genre;
+	private final String name;
+	private final String artist;
+	private final String album;
+	private final String genre;
 	
 	public Song(String song, String artist, String album, String genre){
 		this.name = song;

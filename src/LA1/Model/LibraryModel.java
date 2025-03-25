@@ -321,6 +321,9 @@ public class LibraryModel {
             }
         } 
         ArrayList<Song> storeSongs = store.searchSongByTitle(title);
+        if (storeSongs == null){
+        	return false;
+        }
         for (Song storeSong : storeSongs) {
             if (storeSong.getArtistName().equals(artist)) {
                 Song newSong = new Song(title, artist, storeSong.getAlbumTitle(), storeSong.getGenre());
@@ -335,14 +338,25 @@ public class LibraryModel {
 
     // add an album from the store
     public boolean addAlbum(String title, String artist) {
-        for (Album album : albums) {
-            if (album.getTitle().equals(title) && album.getArtist().equals(artist)) {
-                return false;
-            }
-        }
         ArrayList<Album> storeAlbums = store.searchAlbumByTitle(title);
         if (storeAlbums == null){
         	return false;
+        }
+        if (isAlbumInLibrary(title,artist)){
+        	Album album = findAlbum(title,artist);
+        	System.out.println(album.countSongs());
+        	System.out.println(storeAlbums.get(0).countSongs());
+        	if (storeAlbums.get(0).countSongs() != album.countSongs()){
+        		albums.remove(album);
+        		albums.add(storeAlbums.get(0));
+        		for (Song storeSong : storeAlbums.get(0).getSongs()) {
+                   addSong(storeSong,false);
+        		}
+        		return true;
+        	}
+        	else{
+        		return false;
+        	}
         }
         for (Album storeAlbum : storeAlbums) {
             if (storeAlbum.getArtist().equals(artist)) {
@@ -354,8 +368,7 @@ public class LibraryModel {
                 albums.add(newAlbum);
                 return true;
             }
-        }
-        
+        }   
         return false;
     }
     
@@ -367,14 +380,23 @@ public class LibraryModel {
     	}
     	String title = toAddAlbum.getTitle();
     	String artist = toAddAlbum.getArtist();
-    	for (Album album : albums) {
-            if (album.getTitle().equals(title) && album.getArtist().equals(artist)) {
-                return false;
-            }
-        }
-        ArrayList<Album> storeAlbums = store.searchAlbumByTitle(title);
+    	ArrayList<Album> storeAlbums = store.searchAlbumByTitle(title);
         if (storeAlbums == null){
         	return false;
+        }
+        if (isAlbumInLibrary(title,artist)){
+        	Album album = findAlbum(title,artist);
+        	if (storeAlbums.get(0).countSongs() != album.countSongs()){
+        		albums.remove(album);
+        		albums.add(storeAlbums.get(0));
+        		for (Song storeSong : storeAlbums.get(0).getSongs()) {
+                   addSong(storeSong,false);
+        		}
+        		return true;
+        	}
+        	else{
+        		return false;
+        	}
         }
         for (Album storeAlbum : storeAlbums) {
             if (storeAlbum.getArtist().equals(artist)) {
@@ -387,7 +409,6 @@ public class LibraryModel {
                 return true;
             }
         }
-        
         return false;
     }
     
@@ -415,8 +436,8 @@ public class LibraryModel {
     	for (Album storeAlbum : album) {
     		if (storeAlbum.getTitle().equalsIgnoreCase(title)){
     			Album newAlbum = new Album(storeAlbum.getTitle(),storeAlbum.getArtist(),storeAlbum.getGenre(),storeAlbum.getYear());
-    			newAlbum.addSong(song.getArtistName());
-    			albums.add(storeAlbum);
+    			newAlbum.addSong(song.getSongTitle());
+    			albums.add(newAlbum);
     			return true;
     		}
     	}
@@ -565,14 +586,18 @@ public class LibraryModel {
 	}
 	
     public AutoPlaylist getRecentlyPlayedPlaylist(){
-    	return recentPlaylist;
+    	return recentPlaylist.clone();
     }
     
     public AutoPlaylist getFrequentlyPlayedPlaylist() {
-    	return frequentPlayedPlaylist;
+    	return frequentPlayedPlaylist.clone();
     }
     
     public ArrayList<AutoPlaylist> getGenrePlaylist(){
+    	ArrayList<AutoPlaylist> output = new ArrayList<>();
+    	for (AutoPlaylist autoPlaylist : genre){
+    		output.add(autoPlaylist.clone());
+    	}
     	return genre;
     }
     
@@ -639,6 +664,18 @@ public class LibraryModel {
         	if (song.getSongTitle().equalsIgnoreCase(title) && song.getArtistName().equalsIgnoreCase(artist)) {
         		return song;
         	}
+        }
+		return null;
+	}
+	
+	private Album findAlbum(String title, String artist){
+		int i = 0;
+        while (i < albums.size()) {
+        	Album album = albums.get(i);
+        	if (album.getTitle().equalsIgnoreCase(title) && album.getArtist().equalsIgnoreCase(artist)) {
+        		return album;
+        	}
+        	i++;
         }
 		return null;
 	}
@@ -775,9 +812,6 @@ public class LibraryModel {
 	    
 	    return true;
 	}
-
-	
-
 
 	
 	// shuffle songs

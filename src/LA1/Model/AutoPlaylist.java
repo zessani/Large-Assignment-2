@@ -3,13 +3,13 @@ package LA1.Model;
 import java.util.ArrayList;
 
 
-public class AutoPlaylist {
+public class AutoPlaylist{
 	private String name;
 	private ArrayList<Song> songs;
 	
 	public AutoPlaylist(String name){
 		this.name = name;
-		this.songs = new ArrayList<Song>();
+		songs = new ArrayList<>();
 	}
 	
 	public void addSongs(Song song){
@@ -35,7 +35,15 @@ public class AutoPlaylist {
 	public String getName(){
 		return this.name;
 	}
-	   
+
+	public AutoPlaylist clone(){
+		AutoPlaylist output = new AutoPlaylist(this.name);
+		for (Song song : songs){
+			output.addSongs(song);
+		}
+		return output;
+	}
+	
 	public ArrayList<Song> getSongs() {
 	    return new ArrayList<>(songs);
 	}

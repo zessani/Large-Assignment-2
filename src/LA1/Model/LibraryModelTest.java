@@ -424,6 +424,10 @@ class LibraryModelTest {
 			library.addSong("Hometown Glory", "Adele");
 			titles = library.getAllAlbumTitles();
 			assertEquals(titles.size(),3);
+			library.addAlbum("Fight for Your Mind", "Ben Harper");
+			ArrayList<Song> songs = library.searchSongByArtist("Ben Harper");
+			assertEquals(songs.size(),13);
+			assertEquals(titles.size(),3);
 		}
 		
 		@Test
